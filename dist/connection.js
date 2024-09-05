@@ -16,6 +16,7 @@ const connectPool = async () => {
     }
     catch (err) {
         console.log(err);
+        process.exit(1);
     }
 };
 export { pool, connectPool };

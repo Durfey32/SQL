@@ -19,6 +19,7 @@ const connectPool = async () => {
         console.log('Connected to the database');
     } catch (err) {
         console.log(err);
+        process.exit(1);
     }
 }
 
