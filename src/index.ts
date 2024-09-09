@@ -137,13 +137,18 @@ const addRole = async ():Promise<void> => {
 const updateEmployeeRole = async ():Promise<void> => {
     const {rows: employees} = await pool.query('SELECT id, first_name, last_name FROM employee');
     const {rows: roles} = await pool.query('SELECT id, title FROM role');
+
     const employeeChoices = employees.map(employee => ({name: `${employee.first_name} ${employee.last_name}`, value: employee.id}));
     const roleChoices = roles.map(role => ({name: role.title, value: role.id}));
+
     const updateRole = [
         {name: 'employeeName', type: 'list', message: 'Select the employee to update', choices: employeeChoices},
         {name: 'roleName', type: 'list', message: 'Select the new role', choices: roleChoices}];
+
     const fillIn = await inquirer.prompt(updateRole);
-    const selectedEmployee = employees.find(employee => employee.id === fillIn.employee);
+
+    const selectedEmployee = employees.find(employee => employee.value === fillIn.employee)?.name;
+
     const sql = `UPDATE employee SET role_id = $2 WHERE id = $1`;
     await pool.query(sql, [fillIn.role, fillIn.employee]);
     console.log(`Updated ${selectedEmployee}'s role`);
@@ -153,11 +158,13 @@ const updateEmployeeRole = async ():Promise<void> => {
 const deleteDepartment = async ():Promise<void> => {
     const {rows: departments} = await pool.query('SELECT id, name FROM department');
     const departmentChoices = departments.map(department => ({name: department.name, value: department.id}));
-    const deleteDepartment = [{name: 'departmentName', type: 'list', message: 'Select the department to delete', choices: departmentChoices}];
-    const fillIn = await inquirer.prompt(deleteDepartment);
-    const deletedDepartment = departments.find(department => department.id === fillIn.department);
+
+    const deleteDepartmentPrompt = [{name: 'departmentName', type: 'list', message: 'Select the department to delete', choices: departmentChoices}];
+    const fillIn = await inquirer.prompt(deleteDepartmentPrompt);
+
+    const deletedDepartment = departments.find(department => department.id === fillIn.departmentName);
     const sql = `DELETE FROM department WHERE id = $1`;
-    await pool.query(sql, [fillIn.department]);
+    await pool.query(sql, [fillIn.departmentName]);
     console.log(`Deleted ${deletedDepartment}`);
     mainMenu();
 }
@@ -165,11 +172,14 @@ const deleteDepartment = async ():Promise<void> => {
 const deleteEmployee = async ():Promise<void> => {
     const {rows: employees} = await pool.query('SELECT id, first_name, last_name FROM employee');
     const employeeChoices = employees.map(employee => ({name: `${employee.first_name} ${employee.last_name}`, value: employee.id}));
+
     const deleteEmployee = [{name: 'employeeName', type: 'list', message: 'Select the employee to delete', choices: employeeChoices}];
     const fillIn = await inquirer.prompt(deleteEmployee);
-    const deletedEmployee = employees.find(employee => employee.id === fillIn.employee);
+
+    const deletedEmployee = employees.find(employee => employee.id === fillIn.employeeName);
+
     const sql = `DELETE FROM employee WHERE id = $1`;
-    await pool.query(sql, [fillIn.employee]);
+    await pool.query(sql, [fillIn.employeeName]);
     console.log(`Deleted ${deletedEmployee}`);
     mainMenu();
 }
@@ -177,11 +187,14 @@ const deleteEmployee = async ():Promise<void> => {
 const deleteRole = async ():Promise<void> => {
     const {rows: roles} = await pool.query('SELECT id, title FROM role');
     const roleChoices = roles.map(role => ({name: role.title, value: role.id}));
+
     const deleteRole = [{name: 'roleName', type: 'list', message: 'Select the role to delete', choices: roleChoices}];
     const fillIn = await inquirer.prompt(deleteRole);
-    const deletedRole = roles.find(role => role.id === fillIn.role);
+
+    const deletedRole = roles.find(role => role.id === fillIn.roleName);
+    
     const sql = `DELETE FROM role WHERE id = $1`;
-    await pool.query(sql, [fillIn.role]);
+    await pool.query(sql, [fillIn.roleName]);
     console.log(`Deleted ${deletedRole}`);
     mainMenu();
 }
