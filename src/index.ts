@@ -165,6 +165,7 @@ const deleteDepartment = async ():Promise<void> => {
     const deletedDepartment = departments.find(department => department.id === fillIn.departmentName);
     const sql = `DELETE FROM department WHERE id = $1`;
     await pool.query(sql, [fillIn.departmentName]);
+
     console.log(`Deleted ${deletedDepartment}`);
     mainMenu();
 }
